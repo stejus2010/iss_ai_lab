@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Indian School Sohar – AI Lab</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{
+      --blue:#1f4ea6;
+      --btnBlue:#3c6ad6;
+      --btnDark:#284a99;
+    }
+    html,body{
+      margin:0; height:100%;
+      font-family:"Segoe UI",Arial,sans-serif;
+      background:#000;
+    }
+
+    #bgHome, #bgRec {
+      position:fixed; inset:0;
+      width:100vw; height:100vh;
+      object-fit:cover;
+      z-index:1;
+    }
+    #bgRec { display:none; }
+    .veil{
+      position:fixed; inset:0; z-index:2;
+      background:rgba(255,255,255,0.06);
+    }
+    .banner{
+      position:fixed; top:0; left:0; right:0; z-index:3;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:8px 20px; background:rgba(255,255,255,0.9);
+      box-shadow:0 2px 10px rgba(0,0,0,.25);
+    }
+    .banner .robot{ height:80px; }
+    .banner .logo{ height:64px; }
+    .title{ margin:0 15px; font-weight:800; letter-spacing:2px; color:var(--blue); font-size:clamp(1.2rem,3.2vw,2.4rem); }
+    .content{
+      position: relative;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center; /* vertical center */
+      height: calc(100vh - 140px); /* minus banner height */
+      text-align: center;
+    }
+    .sideGif{
+      position: fixed;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%) scaleX(-1);
+      height: 40vh;
+      max-height: 420px;
+      z-index: 3;
+      pointer-events: none;
+      filter: drop-shadow(0 8px 20px rgba(0,0,0,.35));
+    }
+    .glow{
+      color:#fff; font-weight:900; letter-spacing:4px; text-transform:uppercase;
+      font-size:clamp(1.6rem,4vw,3rem); margin-bottom:30px;
+      opacity:0; transform:translateY(-18px);
+      text-shadow:0 0 5px #1f4ea6, 0 0 10px #1f4ea6, 0 0 20px #1f4ea6, 0 0 40px #1f4ea6;
+      /* new styles */
+      text-align: center;
+      width: 50%;
+      max-width: 1000px; /* optional max width */
+      margin-left: auto; /* push to right */
+    }
+    .glow.show{
+      animation: slideDown .8s ease-out forwards, neonPulse 1.8s ease-in-out 0.7s infinite alternate;
+    }
+    @keyframes slideDown{ to{ opacity:1; transform:translateY(0); } }
+    @keyframes neonPulse{
+      from{ text-shadow:0 0 5px #1f4ea6, 0 0 10px #1f4ea6, 0 0 20px #1f4ea6, 0 0 40px #1f4ea6; }
+      to{   text-shadow:0 0 10px #3a7bff, 0 0 20px #3a7bff, 0 0 40px #3a7bff, 0 0 80px #3a7bff; }
+    }
+    .btn-wrapper{
+      position: relative;
+      display: flex;
+      justify-content: center; /* center horizontally */
+      align-items: center;     /* center vertically if needed */
+      margin-top: 40px;
+    }
+    .cta{
+      border: 0;
+      border-radius: 100px;
+      color: #fff;
+      cursor: pointer;
+      background: linear-gradient(180deg, var(--btnBlue), var(--btnDark));
+      padding: 30px 48px; /* bigger padding */
+      font-weight: 800;
+      letter-spacing: 1px;
+      font-size: clamp(1.4rem, 3vw, 2rem); /* bigger font */
+      box-shadow: 0 10px 26px rgba(0, 0, 0, .35);
+      text-shadow: 0 0 5px #fff;
+      animation: btnPulse 1.6s infinite, btnGlow 2s infinite alternate;
+    }
+    @keyframes btnGlow{
+      from{ box-shadow:0 0 8px #3c6ad6, 0 0 16px #3c6ad6; }
+      to  { box-shadow:0 0 12px #3c6ad6, 0 0 25px #3c6ad6; }
+    }
+    @keyframes btnPulse{ 
+      0%,100%{ transform:scale(1);} 
+      50%{ transform:scale(1.08);} 
+    }
+    .cta[disabled]{ opacity:0.6; cursor:not-allowed; animation:none; }
+
+    .sound-wave {
+      position: fixed;
+      top: 43%; left: 44%;
+      transform: translateY(-50%);
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      height: 140px; /* a bit taller */
+      visibility: hidden;
+      z-index: 4;
+      pointer-events: none;
+    }
+    .sound-wave span {
+      display: block;
+      background: linear-gradient(180deg, #4da6ff, #0066cc);
+      border-radius: 6px;
+      box-shadow: 0 0 15px rgba(77,166,255,0.8);
+      animation: heartbeat 1.4s ease-in-out infinite;
+      transform-origin: bottom center;
+      will-change: transform;
+      height: 60px; /* base height so it's visible */
+    }
+    /* Different widths and staggered delays for heartbeat effect */
+    .sound-wave span:nth-child(1) { width: 6px; animation-delay: 0s; }
+    .sound-wave span:nth-child(2) { width: 8px; animation-delay: 0.1s; }
+    .sound-wave span:nth-child(3) { width: 10px; animation-delay: 0.2s; }
+    .sound-wave span:nth-child(4) { width: 8px; animation-delay: 0.3s; }
+    .sound-wave span:nth-child(5) { width: 6px; animation-delay: 0.4s; }
+    .sound-wave span:nth-child(6) { width: 8px; animation-delay: 0.3s; }
+    .sound-wave span:nth-child(7) { width: 6px; animation-delay: 0.4s; }
+
+    @keyframes heartbeat {
+      0%, 100% {
+        transform: scaleY(0.4);
+        box-shadow: 0 0 8px rgba(77,166,255,0.5);
+      }
+      10% {
+        transform: scaleY(1.5);
+        box-shadow: 0 0 20px rgba(77,166,255,1);
+      }
+      20% {
+        transform: scaleY(1);
+        box-shadow: 0 0 12px rgba(77,166,255,0.8);
+      }
+      30% {
+        transform: scaleY(1.2);
+        box-shadow: 0 0 16px rgba(77,166,255,0.9);
+      }
+      40% {
+        transform: scaleY(0.7);
+        box-shadow: 0 0 7px rgba(77,166,255,0.6);
+      }
+      50% {
+        transform: scaleY(1.2);
+        box-shadow: 0 0 18px rgba(77,166,255,0.95);
+      }
+      60%, 70%, 80%, 90% {
+        transform: scaleY(0.4);
+        box-shadow: 0 0 8px rgba(77,166,255,0.5);
+      }
+    }
+
+    @media (max-width:600px){
+      .banner .robot{height:50px} .banner .logo{height:50px}
+      .content{ margin-top:120px; }
+      .sideGif{ display:none; }
+      .sound-wave { display:none; }
+    }
+  </style>
+</head>
+<body>
+<video id="bgHome" autoplay muted loop playsinline>
+  <source src="https://ia600901.us.archive.org/21/items/bgv4_20250810/bgv4.mp4" type="video/mp4">
+</video>
+
+  <video id="bgRec" muted loop playsinline>
+    <source src="https://ia601708.us.archive.org/18/items/bgv3_20250810/bgv3.mp4" type="video/mp4">
+  </video>
+  <div class="veil"></div>
+
+  <div class="banner">
+    <img src="./Assets/gif/1.gif" class="robot" alt="Robot Left">
+    <div style="display:flex;align-items:center;">
+      <img src="./Assets/Images/logo.jpeg" class="logo" alt="School logo">
+      <h1 class="title">INDIAN SCHOOL SOHAR</h1>
+    </div>
+    <img src="./Assets/gif/1.gif" class="robot" alt="Robot Right">
+  </div>
+
+  <img id="sideGif" class="sideGif" src="./Assets/gif/r1.gif" alt="AI Mascot">
+
+  <div class="content">
+    <div class="glow" id="inaug">AI LAB INAUGURATION</div>
+    <div class="btn-wrapper">
+      <button class="cta">AI RECEPTIONIST</button>
+    </div>
+  </div>
+
+  <!-- Your custom audio file -->
+  <audio id="customVoice" src="./Assets/voice.mp3" preload="auto"></audio>
+
+  <div class="sound-wave" id="wave">
+    <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+  </div>
+
+<script>
+const cta = document.querySelector('.cta');
+const bgHome = document.getElementById('bgHome');
+const bgRec  = document.getElementById('bgRec');
+const sideGif = document.getElementById('sideGif');
+const wave = document.getElementById('wave');
+const audio = document.getElementById('customVoice');
+
+async function showReceptionistBg(on){
+  if (on){
+    try { bgHome.pause(); } catch(e){}
+    bgHome.style.display='none';
+    bgRec.style.display='block';
+    sideGif.style.display='none';
+    cta.style.display='none';  // hide button on second page
+    try { bgRec.currentTime=0; await bgRec.play(); } catch(e){}
+  } else {
+    try { bgRec.pause(); } catch(e){}
+    bgRec.style.display='none';
+    bgHome.style.display='block';
+    sideGif.style.display='block';
+    cta.style.display='block';
+    try { await bgHome.play(); } catch(e){}
+  }
+}
+
+async function startReceptionist(){
+  const prevText = cta.textContent;
+  cta.textContent = '';
+  cta.setAttribute('disabled', 'true');
+
+  await showReceptionistBg(true);
+
+  // Show the wave animation as audio plays
+  wave.style.visibility = 'visible';
+
+  // Play your audio
+  audio.currentTime = 0;
+  audio.play();
+
+  // When audio ends, clean up UI
+  audio.onended = () => {
+    showReceptionistBg(false);
+    wave.style.visibility = 'hidden';
+    cta.textContent = prevText;
+    cta.removeAttribute('disabled');
+  };
+
+  // Handle audio error
+  audio.onerror = () => {
+    alert('Error playing audio');
+    showReceptionistBg(false);
+    wave.style.visibility = 'hidden';
+    cta.textContent = prevText;
+    cta.removeAttribute('disabled');
+  };
+}
+
+cta.addEventListener('click', (e) => {
+  e.preventDefault();
+  if (!cta.hasAttribute('disabled')) startReceptionist();
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !cta.hasAttribute('disabled') && cta.style.display !== 'none') {
+    startReceptionist();
+  }
+});
+
+window.addEventListener('load', () => {
+  document.getElementById('inaug').classList.add('show');
+});
+</script>
+</body>
+</html>
